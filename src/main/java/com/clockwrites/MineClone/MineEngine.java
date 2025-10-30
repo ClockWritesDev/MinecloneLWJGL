@@ -19,7 +19,7 @@ public class MineEngine {
     double firstFrame;
     double deltaTime;
     Renderer renderer = new Renderer();
-    ShaderProgram triangle = new ShaderProgram("cubeshader");
+    ShaderProgram triangle;
 
     public MineEngine(int screenWidth, int screenHeight, String WindowTitle) {
         GLFWErrorCallback.createPrint(System.err).set();
@@ -81,12 +81,20 @@ public class MineEngine {
         this.triangle.useProgram(
             ()-> {
                 glBegin(GL_TRIANGLES);
-                    glColor3f(1,0,0);
-                    glVertex2f(-0.5f,-0.5f);
-                    glColor3f(1,0,0);
-                    glVertex2f(-0.5f,0.5f);
-                    glColor3f(1,0,0);
-                    glVertex2f(0f,-0.5f);
+                    glColor3f(1, 0, 0);
+                    glVertex2f(-0.5f, -0.5f);
+                    glColor3f(0, 1, 0);
+                    glVertex2f(0.5f, -0.5f);
+                    glColor3f(0, 0, 1);
+                    glVertex2f(0.5f, 0.5f);
+                glEnd();
+                glBegin(GL_TRIANGLES);
+                    glColor3f(1, 0, 0);
+                    glVertex2f(-0.5f, -0.5f);
+                    glColor3f(0, 0, 1);
+                    glVertex2f(0.5f, 0.5f);
+                    glColor3f(1, 0, 1);
+                    glVertex2f(-0.5f, 0.5f);
                 glEnd();
             }
         );
@@ -102,10 +110,12 @@ public class MineEngine {
 
         glfwTerminate();
         glfwSetErrorCallback(null).free();
+        this.triangle.deleteProgram();
     }
 
     public void run() {
         this.renderer.init();
+        this.triangle = new ShaderProgram("cubeshader");
         this.update();
         this.cleanUp();
     }

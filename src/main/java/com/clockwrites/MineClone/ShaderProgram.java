@@ -17,12 +17,9 @@ public class ShaderProgram {
     int fragment;
 
     public ShaderProgram(String shaderName) {
+        this.vertex = 0;
+        this.fragment = 0;
         this.sProgram = createProgram(shaderName);
-
-    }
-
-    public int generateVertex() {
-
     }
 
     public int createProgram(String shaderName) {
@@ -38,27 +35,27 @@ public class ShaderProgram {
         }
 
         int shaderP = glCreateProgram();
-        v = glCreateShader(GL_VERTEX_SHADER);
-        f = glCreateShader(GL_FRAGMENT_SHADER);
+        this.vertex = glCreateShader(GL_VERTEX_SHADER);
+        this.fragment = glCreateShader(GL_FRAGMENT_SHADER);
 
-        glShaderSource(v, vertex_shader);
-        glCompileShader(v);
-        if (glGetShaderi(v, GL_COMPILE_STATUS) == GL_FALSE) {
+        glShaderSource(this.vertex, vertex_shader);
+        glCompileShader(this.vertex);
+        if (glGetShaderi(this.vertex, GL_COMPILE_STATUS) == GL_FALSE) {
             System.err.println("Vertex shader wasn't able to be compiled correctly.");
         }
 
-        glShaderSource(fragment, fragment_shader);
-        glCompileShader(fragment);
-        if (glGetShaderi(fragment, GL_COMPILE_STATUS) == GL_FALSE) {
+        glShaderSource(this.fragment, fragment_shader);
+        glCompileShader(this.fragment);
+        if (glGetShaderi(this.fragment, GL_COMPILE_STATUS) == GL_FALSE) {
             System.err.println("Vertex shader wasn't able to be compiled correctly.");
         }
 
-        glAttachShader(sProgram, vertex);
-        glAttachShader(sProgram, fragment);
-        glLinkProgram(sProgram);
-        glValidateProgram(sProgram);
+        glAttachShader(shaderP, this.vertex);
+        glAttachShader(shaderP, this.fragment);
+        glLinkProgram(shaderP);
+        glValidateProgram(shaderP);
 
-        return sProgram;
+        return shaderP;
     }
 
     public void useProgram(Unit block) {
@@ -68,9 +65,9 @@ public class ShaderProgram {
     }
 
     public void deleteProgram() {
-        glDeleteShader(vertex);
-        glDeleteShader(fragment);
-        glDeleteProgram(sProgram);
+        glDeleteShader(this.vertex);
+        glDeleteShader(this.fragment);
+        glDeleteProgram(this.sProgram);
     }
 
     public StringBuilder getShader(String path) throws FileNotFoundException {
