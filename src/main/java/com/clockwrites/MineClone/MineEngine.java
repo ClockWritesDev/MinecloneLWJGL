@@ -1,5 +1,7 @@
 package com.clockwrites.MineClone;
 
+import com.clockwrites.MineClone.meshes.CubeMesh;
+import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -16,12 +18,20 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class MineEngine {
     private final long window;
+    public int width;
+    public int height;
+    public String title;
     double firstFrame;
     double deltaTime;
-    Renderer renderer = new Renderer();
-    ShaderProgram triangle;
+    Renderer renderer = new Renderer(this);
+    CubeMesh cubetest;
+    public Matrix4f projectionMatrix;
 
     public MineEngine(int screenWidth, int screenHeight, String WindowTitle) {
+        this.width = screenWidth;
+        this.height = screenHeight;
+        this.title = WindowTitle;
+
         GLFWErrorCallback.createPrint(System.err).set();
         if ( !glfwInit() )
             throw new IllegalStateException("Unable to initialize GLFW");
@@ -30,7 +40,7 @@ public class MineEngine {
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-        this.window = glfwCreateWindow(screenWidth, screenHeight, WindowTitle, NULL, NULL);
+        this.window = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
         this.firstFrame = glfwGetTime();
 
         if ( this.window == NULL )
@@ -71,33 +81,14 @@ public class MineEngine {
             this.deltaTime = currentFrameTime - this.firstFrame;
             this.firstFrame = currentFrameTime;
             //System.out.println(this.deltaTime);
-            this.render();
+            this.renderer.render(
+                ()->{
+                    this.cubetest.render();
+                }
+            );
             glfwSwapBuffers(this.window);
             glfwPollEvents();
         }
-    }
-
-    public void render() {
-        this.triangle.useProgram(
-            ()-> {
-                glBegin(GL_TRIANGLES);
-                    glColor3f(1, 0, 0);
-                    glVertex2f(-0.5f, -0.5f);
-                    glColor3f(0, 1, 0);
-                    glVertex2f(0.5f, -0.5f);
-                    glColor3f(0, 0, 1);
-                    glVertex2f(0.5f, 0.5f);
-                glEnd();
-                glBegin(GL_TRIANGLES);
-                    glColor3f(1, 0, 0);
-                    glVertex2f(-0.5f, -0.5f);
-                    glColor3f(0, 0, 1);
-                    glVertex2f(0.5f, 0.5f);
-                    glColor3f(1, 0, 1);
-                    glVertex2f(-0.5f, 0.5f);
-                glEnd();
-            }
-        );
     }
 
     public boolean isKeyPressed(int keycode) {
@@ -110,13 +101,18 @@ public class MineEngine {
 
         glfwTerminate();
         glfwSetErrorCallback(null).free();
-        this.triangle.deleteProgram();
+        this.cubetest.cleanup();
     }
 
     public void run() {
         this.renderer.init();
-        this.triangle = new ShaderProgram("cubeshader");
+        this.cubetest = new CubeMesh();
         this.update();
         this.cleanUp();
+    }
+
+    public int[] getScreenSize() {
+        int[] size = new int[] {this.width, this.height};
+        return size;
     }
 }
